@@ -5,18 +5,33 @@
 (function () {
   'use strict';
 
+  // --- Category Config ---
+  const CATEGORIES = {
+    sight: { emoji: '\u{1F441}', label: 'Sight', color: '#4a90d9' },
+    food:  { emoji: '\u{1F37D}', label: 'Food', color: '#e88a3a' },
+    shopping: { emoji: '\u{1F6D2}', label: 'Shopping', color: '#9b59b6' }
+  };
+
+  function categoryIcon(cat) {
+    return (CATEGORIES[cat] || CATEGORIES.sight).emoji;
+  }
+
+  function categoryColor(cat) {
+    return (CATEGORIES[cat] || CATEGORIES.sight).color;
+  }
+
   // --- Seed Data (parsed from Google Maps directions URL) ---
   const SEED_POIS = [
-    { id: 'seed_01', name: "Galleria dell'Accademia di Firenze", description: 'Via Ricasoli, 58/60, 50129 Firenze', lat: 43.7768145, lng: 11.2586424, visited: false },
-    { id: 'seed_02', name: "Cenacolo di Sant'Apollonia", description: 'Via Ventisette Aprile, 1, 50129 Firenze', lat: 43.7787202, lng: 11.2565943, visited: false },
-    { id: 'seed_03', name: 'Medici Riccardi Palace', description: 'Via Camillo Cavour, 3, 50129 Firenze', lat: 43.7751689, lng: 11.2558581, visited: false },
-    { id: 'seed_04', name: 'Cappelle Medicee', description: 'Piazza di Madonna degli Aldobrandini, 6, 50123 Firenze', lat: 43.7750913, lng: 11.2533903, visited: false },
-    { id: 'seed_05', name: 'Basilica of Santa Maria Novella', description: 'P.za di Santa Maria Novella, 18, 50123 Firenze', lat: 43.7746346, lng: 11.2493859, visited: false },
-    { id: 'seed_06', name: 'Piazza del Duomo', description: '50122 Firenze', lat: 43.7734385, lng: 11.2565501, visited: false },
-    { id: 'seed_07', name: 'Fontana del Porcellino', description: 'Piazza del Mercato Nuovo, 50123 Firenze', lat: 43.7698943, lng: 11.2542408, visited: false },
-    { id: 'seed_08', name: 'Piazza della Signoria', description: 'P.za della Signoria, 50122 Firenze', lat: 43.7696855, lng: 11.2556422, visited: false },
-    { id: 'seed_09', name: 'Museo Nazionale del Bargello', description: 'Via del Proconsolo, 4, 50122 Firenze', lat: 43.7703981, lng: 11.2580078, visited: false },
-    { id: 'seed_10', name: 'Basilica of Santa Croce in Florence', description: 'Piazza di Santa Croce, 16, 50122 Firenze', lat: 43.7685683, lng: 11.2622677, visited: false }
+    { id: 'seed_01', name: "Galleria dell'Accademia di Firenze", description: 'Via Ricasoli, 58/60, 50129 Firenze', lat: 43.7768145, lng: 11.2586424, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_02', name: "Cenacolo di Sant'Apollonia", description: 'Via Ventisette Aprile, 1, 50129 Firenze', lat: 43.7787202, lng: 11.2565943, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_03', name: 'Medici Riccardi Palace', description: 'Via Camillo Cavour, 3, 50129 Firenze', lat: 43.7751689, lng: 11.2558581, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_04', name: 'Cappelle Medicee', description: 'Piazza di Madonna degli Aldobrandini, 6, 50123 Firenze', lat: 43.7750913, lng: 11.2533903, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_05', name: 'Basilica of Santa Maria Novella', description: 'P.za di Santa Maria Novella, 18, 50123 Firenze', lat: 43.7746346, lng: 11.2493859, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_06', name: 'Piazza del Duomo', description: '50122 Firenze', lat: 43.7734385, lng: 11.2565501, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_07', name: 'Fontana del Porcellino', description: 'Piazza del Mercato Nuovo, 50123 Firenze', lat: 43.7698943, lng: 11.2542408, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_08', name: 'Piazza della Signoria', description: 'P.za della Signoria, 50122 Firenze', lat: 43.7696855, lng: 11.2556422, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_09', name: 'Museo Nazionale del Bargello', description: 'Via del Proconsolo, 4, 50122 Firenze', lat: 43.7703981, lng: 11.2580078, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_10', name: 'Basilica of Santa Croce in Florence', description: 'Piazza di Santa Croce, 16, 50122 Firenze', lat: 43.7685683, lng: 11.2622677, visited: false, category: 'sight', imageUrl: null }
   ];
 
   // --- State ---
@@ -27,8 +42,8 @@
 
   function defaultState() {
     return {
-      baseLocation: null, // { lat, lng, label }
-      pois: [],           // [{ id, name, description, lat, lng, visited }]
+      baseLocation: null,
+      pois: [],
       currentView: 'map'
     };
   }
@@ -38,14 +53,18 @@
       const raw = localStorage.getItem(STATE_KEY);
       if (raw) {
         const saved = { ...defaultState(), ...JSON.parse(raw) };
-        // If saved state has no POIs, seed them in
         if (!saved.pois || saved.pois.length === 0) {
           saved.pois = SEED_POIS.map(p => ({ ...p }));
         }
+        // Ensure new fields exist on older saved POIs
+        saved.pois = saved.pois.map(p => ({
+          category: 'sight',
+          imageUrl: null,
+          ...p
+        }));
         return saved;
       }
     } catch (e) { /* ignore */ }
-    // First launch: seed with Florence POIs
     const initial = defaultState();
     initial.pois = SEED_POIS.map(p => ({ ...p }));
     return initial;
@@ -57,9 +76,52 @@
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
   }
 
-  // --- Geocoding (Nominatim) ---
-  let geocodeTimeout = null;
+  // --- Wikipedia Image Fetching ---
+  async function fetchWikipediaImage(name) {
+    try {
+      // Try direct page summary first
+      const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`;
+      const res = await fetch(summaryUrl);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.thumbnail && data.thumbnail.source) {
+          return data.thumbnail.source;
+        }
+      }
+      // Fall back to search
+      const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(name)}&format=json&origin=*`;
+      const searchRes = await fetch(searchUrl);
+      if (searchRes.ok) {
+        const searchData = await searchRes.json();
+        if (searchData.query && searchData.query.search && searchData.query.search.length > 0) {
+          const title = searchData.query.search[0].title;
+          const pageUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+          const pageRes = await fetch(pageUrl);
+          if (pageRes.ok) {
+            const pageData = await pageRes.json();
+            if (pageData.thumbnail && pageData.thumbnail.source) {
+              return pageData.thumbnail.source;
+            }
+          }
+        }
+      }
+    } catch (e) { /* ignore */ }
+    return null;
+  }
 
+  async function autoFetchImage(poiId) {
+    const poi = state.pois.find(p => p.id === poiId);
+    if (!poi || poi.imageUrl) return;
+    const url = await fetchWikipediaImage(poi.name);
+    if (url) {
+      poi.imageUrl = url;
+      saveState();
+      renderMapMarkers();
+      renderListView();
+    }
+  }
+
+  // --- Geocoding (Nominatim) ---
   async function geocode(query) {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
     const res = await fetch(url, {
@@ -92,7 +154,7 @@
   function toDeg(rad) { return rad * 180 / Math.PI; }
 
   function haversineDistance(lat1, lng1, lat2, lng2) {
-    const R = 6371; // km
+    const R = 6371;
     const dLat = toRad(lat2 - lat1);
     const dLng = toRad(lng2 - lng1);
     const a = Math.sin(dLat / 2) ** 2 +
@@ -130,7 +192,7 @@
   function initMap() {
     const center = state.baseLocation
       ? [state.baseLocation.lat, state.baseLocation.lng]
-      : [41.9028, 12.4964]; // Default: Rome
+      : [41.9028, 12.4964];
 
     map = L.map('map', {
       center: center,
@@ -146,8 +208,29 @@
     renderMapMarkers();
   }
 
+  function createMarkerIcon(poi) {
+    if (poi.visited) {
+      return L.divIcon({
+        className: 'visited-marker-icon',
+        html: '<div class="visited-marker-pin"><span class="visited-check">\u2713</span></div>',
+        iconSize: [28, 28],
+        iconAnchor: [14, 28],
+        popupAnchor: [0, -28]
+      });
+    }
+
+    const color = categoryColor(poi.category);
+    const emoji = categoryIcon(poi.category);
+    return L.divIcon({
+      className: 'category-marker-icon',
+      html: `<div class="category-marker-pin" style="background:${color}"><span class="category-marker-emoji">${emoji}</span></div>`,
+      iconSize: [32, 40],
+      iconAnchor: [16, 40],
+      popupAnchor: [0, -40]
+    });
+  }
+
   function renderMapMarkers() {
-    // Clear existing
     markers.forEach(m => map.removeLayer(m));
     markers = [];
     if (baseMarker) {
@@ -155,7 +238,6 @@
       baseMarker = null;
     }
 
-    // Base marker
     if (state.baseLocation) {
       const baseIcon = L.divIcon({
         className: 'base-marker-icon',
@@ -170,25 +252,20 @@
       baseMarker.bindPopup('<div class="popup-title">Base Location</div>');
     }
 
-    // POI markers
     state.pois.forEach(poi => {
+      const markerIcon = createMarkerIcon(poi);
+      const marker = L.marker([poi.lat, poi.lng], { icon: markerIcon }).addTo(map);
+
       const isVisited = poi.visited;
-      const markerIcon = isVisited
-        ? L.divIcon({
-            className: 'visited-marker-icon',
-            html: '<div class="visited-marker-pin"><span class="visited-check">\u2713</span></div>',
-            iconSize: [28, 28],
-            iconAnchor: [14, 28],
-            popupAnchor: [0, -28]
-          })
-        : undefined; // use default Leaflet marker
-
-      const markerOpts = markerIcon ? { icon: markerIcon } : {};
-      const marker = L.marker([poi.lat, poi.lng], markerOpts).addTo(map);
-
       const toggleLabel = isVisited ? 'Mark unvisited' : 'Mark visited';
+      const cat = categoryIcon(poi.category);
+      const imgHtml = poi.imageUrl
+        ? `<div class="popup-image"><img src="${escapeHtml(poi.imageUrl)}" alt="" loading="lazy"></div>`
+        : '';
+
       const popupHtml = `
-        <div class="popup-title${isVisited ? ' popup-visited' : ''}">${isVisited ? '\u2713 ' : ''}${escapeHtml(poi.name)}</div>
+        ${imgHtml}
+        <div class="popup-title${isVisited ? ' popup-visited' : ''}">${cat} ${isVisited ? '\u2713 ' : ''}${escapeHtml(poi.name)}</div>
         ${poi.description ? `<div class="popup-desc">${escapeHtml(poi.description)}</div>` : ''}
         <div class="popup-actions">
           <a class="popup-link" href="${googleMapsUrl(poi.lat, poi.lng)}" target="_blank" rel="noopener">Open in Maps</a>
@@ -196,7 +273,7 @@
           <a class="popup-edit" href="#" data-poi-id="${poi.id}">Edit</a>
         </div>
       `;
-      marker.bindPopup(popupHtml);
+      marker.bindPopup(popupHtml, { maxWidth: 250 });
       marker.on('popupopen', () => {
         const editLink = document.querySelector(`.popup-edit[data-poi-id="${poi.id}"]`);
         if (editLink) {
@@ -217,7 +294,6 @@
       markers.push(marker);
     });
 
-    // Fit bounds if we have markers
     if (state.pois.length > 0) {
       const allPoints = state.pois.map(p => [p.lat, p.lng]);
       if (state.baseLocation) {
@@ -243,17 +319,14 @@
       return;
     }
 
-    // Calculate distance and direction for each POI
     const enriched = state.pois.map(poi => {
       const dist = haversineDistance(state.baseLocation.lat, state.baseLocation.lng, poi.lat, poi.lng);
       const bear = bearing(state.baseLocation.lat, state.baseLocation.lng, poi.lat, poi.lng);
       return { ...poi, distance: dist, bearing: bear, direction: cardinalDirection(bear) };
     });
 
-    // Sort by distance
     enriched.sort((a, b) => a.distance - b.distance);
 
-    // Group by direction
     const directionOrder = ['North', 'East', 'South', 'West'];
     const directionArrows = { North: '\u2191', East: '\u2192', South: '\u2193', West: '\u2190' };
     const groups = {};
@@ -274,17 +347,25 @@
         const visitedClass = poi.visited ? ' poi-card--visited' : '';
         const visitedBtnLabel = poi.visited ? '\u2713 Visited' : 'Mark visited';
         const visitedBtnClass = poi.visited ? 'poi-card-visited-btn poi-card-visited-btn--active' : 'poi-card-visited-btn';
+        const cat = categoryIcon(poi.category);
+        const imgHtml = poi.imageUrl
+          ? `<div class="poi-card-image"><img src="${escapeHtml(poi.imageUrl)}" alt="" loading="lazy"></div>`
+          : '';
+
         html += `
           <div class="poi-card${visitedClass}" data-poi-id="${poi.id}">
-            <div class="poi-card-header">
-              <span class="poi-card-name">${poi.visited ? '<span class="visited-badge">\u2713</span> ' : ''}${escapeHtml(poi.name)}</span>
-              <span class="poi-card-distance">${formatDistance(poi.distance)}</span>
-            </div>
-            ${poi.description ? `<div class="poi-card-desc">${escapeHtml(poi.description)}</div>` : ''}
-            <div class="poi-card-actions">
-              <a class="poi-card-link" href="${googleMapsUrl(poi.lat, poi.lng)}" target="_blank" rel="noopener">Open in Maps</a>
-              <button class="${visitedBtnClass}" data-toggle-id="${poi.id}">${visitedBtnLabel}</button>
-              <button class="poi-card-edit" data-edit-id="${poi.id}">Edit</button>
+            ${imgHtml}
+            <div class="poi-card-body">
+              <div class="poi-card-header">
+                <span class="poi-card-name">${cat} ${poi.visited ? '<span class="visited-badge">\u2713</span> ' : ''}${escapeHtml(poi.name)}</span>
+                <span class="poi-card-distance">${formatDistance(poi.distance)}</span>
+              </div>
+              ${poi.description ? `<div class="poi-card-desc">${escapeHtml(poi.description)}</div>` : ''}
+              <div class="poi-card-actions">
+                <a class="poi-card-link" href="${googleMapsUrl(poi.lat, poi.lng)}" target="_blank" rel="noopener">Open in Maps</a>
+                <button class="${visitedBtnClass}" data-toggle-id="${poi.id}">${visitedBtnLabel}</button>
+                <button class="poi-card-edit" data-edit-id="${poi.id}">Edit</button>
+              </div>
             </div>
           </div>
         `;
@@ -295,7 +376,6 @@
 
     container.innerHTML = html;
 
-    // Attach edit handlers
     container.querySelectorAll('.poi-card-edit').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -303,7 +383,6 @@
       });
     });
 
-    // Attach visited toggle handlers
     container.querySelectorAll('.poi-card-visited-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -326,6 +405,24 @@
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   }
 
+  function setSelectedCategory(cat) {
+    document.querySelectorAll('.category-option').forEach(el => {
+      el.classList.toggle('category-option--active', el.dataset.category === cat);
+    });
+    document.getElementById('poi-category').value = cat;
+  }
+
+  function updateImagePreview(url) {
+    const preview = document.getElementById('poi-image-preview');
+    if (url) {
+      preview.innerHTML = `<img src="${escapeHtml(url)}" alt="Preview">`;
+      preview.style.display = 'block';
+    } else {
+      preview.innerHTML = '';
+      preview.style.display = 'none';
+    }
+  }
+
   function openAddPoi() {
     document.getElementById('poi-modal-title').textContent = 'Add Point of Interest';
     document.getElementById('poi-name').value = '';
@@ -339,6 +436,9 @@
     document.getElementById('poi-visited').checked = false;
     document.getElementById('visited-toggle-row').style.display = 'none';
     document.getElementById('btn-delete-poi').style.display = 'none';
+    document.getElementById('poi-image-url').value = '';
+    setSelectedCategory('sight');
+    updateImagePreview(null);
     openModal('poi-modal');
   }
 
@@ -358,6 +458,9 @@
     document.getElementById('poi-visited').checked = !!poi.visited;
     document.getElementById('visited-toggle-row').style.display = 'flex';
     document.getElementById('btn-delete-poi').style.display = 'inline-block';
+    document.getElementById('poi-image-url').value = poi.imageUrl || '';
+    setSelectedCategory(poi.category || 'sight');
+    updateImagePreview(poi.imageUrl);
     openModal('poi-modal');
   }
 
@@ -368,6 +471,8 @@
     const lng = parseFloat(document.getElementById('poi-lng').value);
     const id = document.getElementById('poi-id').value;
     const visited = document.getElementById('poi-visited').checked;
+    const category = document.getElementById('poi-category').value || 'sight';
+    const imageUrl = document.getElementById('poi-image-url').value.trim() || null;
 
     if (!name) {
       alert('Please enter a name.');
@@ -379,14 +484,17 @@
     }
 
     if (id) {
-      // Update
       const idx = state.pois.findIndex(p => p.id === id);
       if (idx !== -1) {
-        state.pois[idx] = { ...state.pois[idx], name, description, lat, lng, visited };
+        state.pois[idx] = { ...state.pois[idx], name, description, lat, lng, visited, category, imageUrl };
       }
     } else {
-      // Create
-      state.pois.push({ id: generateId(), name, description, lat, lng, visited: false });
+      const newId = generateId();
+      state.pois.push({ id: newId, name, description, lat, lng, visited: false, category, imageUrl });
+      // Auto-fetch Wikipedia image for new POIs without a manual URL
+      if (!imageUrl) {
+        setTimeout(() => autoFetchImage(newId), 100);
+      }
     }
 
     saveState();
@@ -535,6 +643,37 @@
     document.getElementById('btn-add-poi').addEventListener('click', openAddPoi);
     document.getElementById('btn-add-poi-list').addEventListener('click', openAddPoi);
 
+    // POI: category selector
+    document.querySelectorAll('.category-option').forEach(el => {
+      el.addEventListener('click', () => setSelectedCategory(el.dataset.category));
+    });
+
+    // POI: image URL change → preview
+    document.getElementById('poi-image-url').addEventListener('input', (e) => {
+      updateImagePreview(e.target.value.trim() || null);
+    });
+
+    // POI: fetch image from Wikipedia
+    document.getElementById('btn-fetch-image').addEventListener('click', async () => {
+      const name = document.getElementById('poi-name').value.trim();
+      if (!name) { alert('Enter a name first.'); return; }
+      const btn = document.getElementById('btn-fetch-image');
+      btn.disabled = true;
+      btn.textContent = '...';
+      try {
+        const url = await fetchWikipediaImage(name);
+        if (url) {
+          document.getElementById('poi-image-url').value = url;
+          updateImagePreview(url);
+        } else {
+          alert('No image found on Wikipedia for this name.');
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Fetch';
+      }
+    });
+
     // POI: geocode
     document.getElementById('btn-geocode-poi').addEventListener('click', async () => {
       const query = document.getElementById('poi-address').value.trim();
@@ -569,7 +708,6 @@
       });
     });
 
-    // Close modal on backdrop click
     document.querySelectorAll('.modal').forEach(modal => {
       modal.addEventListener('click', (e) => {
         if (e.target === modal) {
@@ -590,6 +728,13 @@
     if (!state.baseLocation) {
       openWelcomeModal();
     }
+
+    // Auto-fetch images for seed POIs that don't have images
+    state.pois.forEach(poi => {
+      if (!poi.imageUrl) {
+        setTimeout(() => autoFetchImage(poi.id), Math.random() * 3000);
+      }
+    });
 
     // Restore view
     setView(state.currentView);

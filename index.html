@@ -84,6 +84,27 @@
         <input type="hidden" id="poi-lat">
         <input type="hidden" id="poi-lng">
         <input type="hidden" id="poi-id">
+        <input type="hidden" id="poi-category" value="sight">
+
+        <label>Category</label>
+        <div class="category-selector">
+          <button type="button" class="category-option category-option--active" data-category="sight">
+            <span class="category-option-icon">&#x1F441;</span> Sight
+          </button>
+          <button type="button" class="category-option" data-category="food">
+            <span class="category-option-icon">&#x1F37D;</span> Food
+          </button>
+          <button type="button" class="category-option" data-category="shopping">
+            <span class="category-option-icon">&#x1F6D2;</span> Shopping
+          </button>
+        </div>
+
+        <label for="poi-image-url">Image</label>
+        <div class="input-row">
+          <input type="text" id="poi-image-url" placeholder="Image URL (auto-fetched or paste)">
+          <button type="button" id="btn-fetch-image" class="btn-secondary">Fetch</button>
+        </div>
+        <div id="poi-image-preview" class="image-preview" style="display:none;"></div>
 
         <label class="toggle-row" id="visited-toggle-row" style="display:none;">
           <span class="toggle-label">Visited</span>
