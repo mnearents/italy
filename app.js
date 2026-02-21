@@ -14,22 +14,22 @@
 
   // --- Seed Data (parsed from Google Maps directions URL) ---
   const SEED_POIS = [
-    { id: 'seed_01', name: "Galleria dell'Accademia di Firenze", description: 'Via Ricasoli, 58/60, 50129 Firenze', lat: 43.7768145, lng: 11.2586424 },
-    { id: 'seed_02', name: "Cenacolo di Sant'Apollonia", description: 'Via Ventisette Aprile, 1, 50129 Firenze', lat: 43.7787202, lng: 11.2565943 },
-    { id: 'seed_03', name: 'Medici Riccardi Palace', description: 'Via Camillo Cavour, 3, 50129 Firenze', lat: 43.7751689, lng: 11.2558581 },
-    { id: 'seed_04', name: 'Cappelle Medicee', description: 'Piazza di Madonna degli Aldobrandini, 6, 50123 Firenze', lat: 43.7750913, lng: 11.2533903 },
-    { id: 'seed_05', name: 'Basilica of Santa Maria Novella', description: 'P.za di Santa Maria Novella, 18, 50123 Firenze', lat: 43.7746346, lng: 11.2493859 },
-    { id: 'seed_06', name: 'Piazza del Duomo', description: '50122 Firenze', lat: 43.7734385, lng: 11.2565501 },
-    { id: 'seed_07', name: 'Fontana del Porcellino', description: 'Piazza del Mercato Nuovo, 50123 Firenze', lat: 43.7698943, lng: 11.2542408 },
-    { id: 'seed_08', name: 'Piazza della Signoria', description: 'P.za della Signoria, 50122 Firenze', lat: 43.7696855, lng: 11.2556422 },
-    { id: 'seed_09', name: 'Museo Nazionale del Bargello', description: 'Via del Proconsolo, 4, 50122 Firenze', lat: 43.7703981, lng: 11.2580078 },
-    { id: 'seed_10', name: 'Basilica of Santa Croce in Florence', description: 'Piazza di Santa Croce, 16, 50122 Firenze', lat: 43.7685683, lng: 11.2622677 }
+    { id: 'seed_01', name: "Galleria dell'Accademia di Firenze", description: 'Via Ricasoli, 58/60, 50129 Firenze', lat: 43.7768145, lng: 11.2586424, visited: false },
+    { id: 'seed_02', name: "Cenacolo di Sant'Apollonia", description: 'Via Ventisette Aprile, 1, 50129 Firenze', lat: 43.7787202, lng: 11.2565943, visited: false },
+    { id: 'seed_03', name: 'Medici Riccardi Palace', description: 'Via Camillo Cavour, 3, 50129 Firenze', lat: 43.7751689, lng: 11.2558581, visited: false },
+    { id: 'seed_04', name: 'Cappelle Medicee', description: 'Piazza di Madonna degli Aldobrandini, 6, 50123 Firenze', lat: 43.7750913, lng: 11.2533903, visited: false },
+    { id: 'seed_05', name: 'Basilica of Santa Maria Novella', description: 'P.za di Santa Maria Novella, 18, 50123 Firenze', lat: 43.7746346, lng: 11.2493859, visited: false },
+    { id: 'seed_06', name: 'Piazza del Duomo', description: '50122 Firenze', lat: 43.7734385, lng: 11.2565501, visited: false },
+    { id: 'seed_07', name: 'Fontana del Porcellino', description: 'Piazza del Mercato Nuovo, 50123 Firenze', lat: 43.7698943, lng: 11.2542408, visited: false },
+    { id: 'seed_08', name: 'Piazza della Signoria', description: 'P.za della Signoria, 50122 Firenze', lat: 43.7696855, lng: 11.2556422, visited: false },
+    { id: 'seed_09', name: 'Museo Nazionale del Bargello', description: 'Via del Proconsolo, 4, 50122 Firenze', lat: 43.7703981, lng: 11.2580078, visited: false },
+    { id: 'seed_10', name: 'Basilica of Santa Croce in Florence', description: 'Piazza di Santa Croce, 16, 50122 Firenze', lat: 43.7685683, lng: 11.2622677, visited: false }
   ];
 
   function defaultState() {
     return {
       baseLocation: null, // { lat, lng, label }
-      pois: [],           // [{ id, name, description, lat, lng }]
+      pois: [],           // [{ id, name, description, lat, lng, visited }]
       currentView: 'map'
     };
   }
@@ -164,12 +164,29 @@
 
     // POI markers
     state.pois.forEach(poi => {
-      const marker = L.marker([poi.lat, poi.lng]).addTo(map);
+      const isVisited = poi.visited;
+      const markerIcon = isVisited
+        ? L.divIcon({
+            className: 'visited-marker-icon',
+            html: '<div class="visited-marker-pin"><span class="visited-check">\u2713</span></div>',
+            iconSize: [28, 28],
+            iconAnchor: [14, 28],
+            popupAnchor: [0, -28]
+          })
+        : undefined; // use default Leaflet marker
+
+      const markerOpts = markerIcon ? { icon: markerIcon } : {};
+      const marker = L.marker([poi.lat, poi.lng], markerOpts).addTo(map);
+
+      const toggleLabel = isVisited ? 'Mark unvisited' : 'Mark visited';
       const popupHtml = `
-        <div class="popup-title">${escapeHtml(poi.name)}</div>
+        <div class="popup-title${isVisited ? ' popup-visited' : ''}">${isVisited ? '\u2713 ' : ''}${escapeHtml(poi.name)}</div>
         ${poi.description ? `<div class="popup-desc">${escapeHtml(poi.description)}</div>` : ''}
-        <a class="popup-link" href="${googleMapsUrl(poi.lat, poi.lng)}" target="_blank" rel="noopener">Open in Maps</a>
-        <a class="popup-edit" href="#" data-poi-id="${poi.id}">Edit</a>
+        <div class="popup-actions">
+          <a class="popup-link" href="${googleMapsUrl(poi.lat, poi.lng)}" target="_blank" rel="noopener">Open in Maps</a>
+          <a class="popup-toggle-visited" href="#" data-poi-id="${poi.id}">${toggleLabel}</a>
+          <a class="popup-edit" href="#" data-poi-id="${poi.id}">Edit</a>
+        </div>
       `;
       marker.bindPopup(popupHtml);
       marker.on('popupopen', () => {
@@ -179,6 +196,13 @@
             e.preventDefault();
             marker.closePopup();
             openEditPoi(poi.id);
+          });
+        }
+        const toggleLink = document.querySelector(`.popup-toggle-visited[data-poi-id="${poi.id}"]`);
+        if (toggleLink) {
+          toggleLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleVisited(poi.id);
           });
         }
       });
@@ -239,15 +263,19 @@
       </div>`;
 
       items.forEach(poi => {
+        const visitedClass = poi.visited ? ' poi-card--visited' : '';
+        const visitedBtnLabel = poi.visited ? '\u2713 Visited' : 'Mark visited';
+        const visitedBtnClass = poi.visited ? 'poi-card-visited-btn poi-card-visited-btn--active' : 'poi-card-visited-btn';
         html += `
-          <div class="poi-card" data-poi-id="${poi.id}">
+          <div class="poi-card${visitedClass}" data-poi-id="${poi.id}">
             <div class="poi-card-header">
-              <span class="poi-card-name">${escapeHtml(poi.name)}</span>
+              <span class="poi-card-name">${poi.visited ? '<span class="visited-badge">\u2713</span> ' : ''}${escapeHtml(poi.name)}</span>
               <span class="poi-card-distance">${formatDistance(poi.distance)}</span>
             </div>
             ${poi.description ? `<div class="poi-card-desc">${escapeHtml(poi.description)}</div>` : ''}
             <div class="poi-card-actions">
               <a class="poi-card-link" href="${googleMapsUrl(poi.lat, poi.lng)}" target="_blank" rel="noopener">Open in Maps</a>
+              <button class="${visitedBtnClass}" data-toggle-id="${poi.id}">${visitedBtnLabel}</button>
               <button class="poi-card-edit" data-edit-id="${poi.id}">Edit</button>
             </div>
           </div>
@@ -264,6 +292,14 @@
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         openEditPoi(btn.dataset.editId);
+      });
+    });
+
+    // Attach visited toggle handlers
+    container.querySelectorAll('.poi-card-visited-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleVisited(btn.dataset.toggleId);
       });
     });
   }
@@ -292,6 +328,8 @@
     document.getElementById('poi-id').value = '';
     document.getElementById('poi-coords-display').textContent = '';
     document.getElementById('poi-search-results').innerHTML = '';
+    document.getElementById('poi-visited').checked = false;
+    document.getElementById('visited-toggle-row').style.display = 'none';
     document.getElementById('btn-delete-poi').style.display = 'none';
     openModal('poi-modal');
   }
@@ -309,6 +347,8 @@
     document.getElementById('poi-id').value = poi.id;
     document.getElementById('poi-coords-display').textContent = `${poi.lat.toFixed(5)}, ${poi.lng.toFixed(5)}`;
     document.getElementById('poi-search-results').innerHTML = '';
+    document.getElementById('poi-visited').checked = !!poi.visited;
+    document.getElementById('visited-toggle-row').style.display = 'flex';
     document.getElementById('btn-delete-poi').style.display = 'inline-block';
     openModal('poi-modal');
   }
@@ -319,6 +359,7 @@
     const lat = parseFloat(document.getElementById('poi-lat').value);
     const lng = parseFloat(document.getElementById('poi-lng').value);
     const id = document.getElementById('poi-id').value;
+    const visited = document.getElementById('poi-visited').checked;
 
     if (!name) {
       alert('Please enter a name.');
@@ -333,15 +374,24 @@
       // Update
       const idx = state.pois.findIndex(p => p.id === id);
       if (idx !== -1) {
-        state.pois[idx] = { ...state.pois[idx], name, description, lat, lng };
+        state.pois[idx] = { ...state.pois[idx], name, description, lat, lng, visited };
       }
     } else {
       // Create
-      state.pois.push({ id: generateId(), name, description, lat, lng });
+      state.pois.push({ id: generateId(), name, description, lat, lng, visited: false });
     }
 
     saveState();
     closeModal('poi-modal');
+    renderMapMarkers();
+    renderListView();
+  }
+
+  function toggleVisited(id) {
+    const poi = state.pois.find(p => p.id === id);
+    if (!poi) return;
+    poi.visited = !poi.visited;
+    saveState();
     renderMapMarkers();
     renderListView();
   }
