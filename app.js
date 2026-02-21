@@ -5,13 +5,6 @@
 (function () {
   'use strict';
 
-  // --- State ---
-  const STATE_KEY = 'poi-explorer-state';
-  let state = loadState();
-  let map = null;
-  let markers = [];
-  let baseMarker = null;
-
   // --- Seed Data (parsed from Google Maps directions URL) ---
   const SEED_POIS = [
     { id: 'seed_01', name: "Galleria dell'Accademia di Firenze", description: 'Via Ricasoli, 58/60, 50129 Firenze', lat: 43.7768145, lng: 11.2586424, visited: false },
@@ -25,6 +18,12 @@
     { id: 'seed_09', name: 'Museo Nazionale del Bargello', description: 'Via del Proconsolo, 4, 50122 Firenze', lat: 43.7703981, lng: 11.2580078, visited: false },
     { id: 'seed_10', name: 'Basilica of Santa Croce in Florence', description: 'Piazza di Santa Croce, 16, 50122 Firenze', lat: 43.7685683, lng: 11.2622677, visited: false }
   ];
+
+  // --- State ---
+  const STATE_KEY = 'poi-explorer-state';
+  let map = null;
+  let markers = [];
+  let baseMarker = null;
 
   function defaultState() {
     return {
@@ -51,6 +50,8 @@
     initial.pois = SEED_POIS.map(p => ({ ...p }));
     return initial;
   }
+
+  let state = loadState();
 
   function saveState() {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
