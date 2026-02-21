@@ -522,6 +522,52 @@ html, body {
   box-shadow: 0 2px 8px rgba(79, 195, 247, 0.5);
 }
 
+/* Live location marker */
+.live-location-icon {
+  background: none !important;
+  border: none !important;
+}
+
+.live-location-dot {
+  width: 16px;
+  height: 16px;
+  background: #2979ff;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(41, 121, 255, 0.6);
+  position: relative;
+}
+
+.live-location-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(41, 121, 255, 0.3);
+  animation: livePulse 2s ease-out infinite;
+}
+
+@keyframes livePulse {
+  0% {
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;
+  }
+  100% {
+    width: 48px;
+    height: 48px;
+    opacity: 0;
+  }
+}
+
+/* Locate button active state */
+.header-btn--tracking {
+  color: #2979ff;
+}
+
 /* Category marker on map */
 .category-marker-icon {
   background: none !important;

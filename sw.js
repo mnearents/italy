@@ -1,4 +1,4 @@
-const CACHE_NAME = 'poi-explorer-v8';
+const CACHE_NAME = 'poi-explorer-v9';
 const ASSETS = [
   './',
   './index.html',

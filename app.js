@@ -88,6 +88,10 @@
   let map = null;
   let markers = [];
   let baseMarker = null;
+  let userLocationMarker = null;
+  let userAccuracyCircle = null;
+  let watchId = null;
+  let userLatLng = null;
 
   function defaultState() {
     return {
@@ -611,6 +615,86 @@
     );
   }
 
+  // --- Live Location Tracking ---
+  function startLiveTracking() {
+    if (!navigator.geolocation) return;
+    if (watchId !== null) return; // Already tracking
+
+    watchId = navigator.geolocation.watchPosition(
+      pos => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const accuracy = pos.coords.accuracy;
+        userLatLng = [lat, lng];
+
+        if (!map) return;
+
+        if (userLocationMarker) {
+          userLocationMarker.setLatLng(userLatLng);
+        } else {
+          const icon = L.divIcon({
+            className: 'live-location-icon',
+            html: '<div class="live-location-pulse"></div><div class="live-location-dot"></div>',
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
+          });
+          userLocationMarker = L.marker(userLatLng, {
+            icon: icon,
+            zIndexOffset: 1000
+          }).addTo(map);
+        }
+
+        if (userAccuracyCircle) {
+          userAccuracyCircle.setLatLng(userLatLng);
+          userAccuracyCircle.setRadius(accuracy);
+        } else {
+          userAccuracyCircle = L.circle(userLatLng, {
+            radius: accuracy,
+            color: '#2979ff',
+            fillColor: '#2979ff',
+            fillOpacity: 0.08,
+            weight: 1,
+            opacity: 0.3
+          }).addTo(map);
+        }
+
+        // Update locate button to show active state
+        const btn = document.getElementById('btn-locate');
+        if (btn) btn.classList.add('header-btn--tracking');
+      },
+      () => { /* silently ignore errors for continuous tracking */ },
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
+    );
+  }
+
+  function stopLiveTracking() {
+    if (watchId !== null) {
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+    }
+    if (userLocationMarker && map) {
+      map.removeLayer(userLocationMarker);
+      userLocationMarker = null;
+    }
+    if (userAccuracyCircle && map) {
+      map.removeLayer(userAccuracyCircle);
+      userAccuracyCircle = null;
+    }
+    userLatLng = null;
+    const btn = document.getElementById('btn-locate');
+    if (btn) btn.classList.remove('header-btn--tracking');
+  }
+
+  function panToUser() {
+    if (userLatLng && map) {
+      map.setView(userLatLng, Math.max(map.getZoom(), 15));
+    } else if (!watchId) {
+      startLiveTracking();
+    } else {
+      alert('Waiting for GPS signal...');
+    }
+  }
+
   // --- Utility ---
   function escapeHtml(str) {
     const div = document.createElement('div');
@@ -639,6 +723,12 @@
   // --- Wire Up Events ---
   function init() {
     initMap();
+
+    // Live location tracking
+    startLiveTracking();
+
+    // Locate me button
+    document.getElementById('btn-locate').addEventListener('click', panToUser);
 
     // View toggle
     document.getElementById('btn-toggle-view').addEventListener('click', () => {
