@@ -2,7 +2,7 @@
   "name": "Italy POI Explorer",
   "short_name": "POI Explorer",
   "description": "Map your points of interest and explore by direction and distance",
-  "start_url": "/index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#1a1a2e",
   "theme_color": "#16213e",
