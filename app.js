@@ -20,18 +20,67 @@
     return (CATEGORIES[cat] || CATEGORIES.sight).color;
   }
 
-  // --- Seed Data (parsed from Google Maps directions URL) ---
+  // --- Seed Data ---
   const SEED_POIS = [
-    { id: 'seed_01', name: "Galleria dell'Accademia di Firenze", description: 'Via Ricasoli, 58/60, 50129 Firenze', lat: 43.7768145, lng: 11.2586424, visited: false, category: 'sight', imageUrl: null },
-    { id: 'seed_02', name: "Cenacolo di Sant'Apollonia", description: 'Via Ventisette Aprile, 1, 50129 Firenze', lat: 43.7787202, lng: 11.2565943, visited: false, category: 'sight', imageUrl: null },
-    { id: 'seed_03', name: 'Medici Riccardi Palace', description: 'Via Camillo Cavour, 3, 50129 Firenze', lat: 43.7751689, lng: 11.2558581, visited: false, category: 'sight', imageUrl: null },
-    { id: 'seed_04', name: 'Cappelle Medicee', description: 'Piazza di Madonna degli Aldobrandini, 6, 50123 Firenze', lat: 43.7750913, lng: 11.2533903, visited: false, category: 'sight', imageUrl: null },
+    // === Florence - Sights ===
+    { id: 'seed_01', name: "Galleria dell'Accademia di Firenze", description: "Home of Michelangelo's David", lat: 43.7768145, lng: 11.2586424, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_02', name: "Cenacolo di Sant'Apollonia", description: 'Last Supper by Andrea del Castagno', lat: 43.7787202, lng: 11.2565943, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_03', name: 'Medici Riccardi Palace', description: 'Museum - ask to see tomb underneath', lat: 43.7751689, lng: 11.2558581, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_04', name: 'Cappelle Medicee', description: 'Art museum - Medici Chapel', lat: 43.7750913, lng: 11.2533903, visited: false, category: 'sight', imageUrl: null },
     { id: 'seed_05', name: 'Basilica of Santa Maria Novella', description: 'P.za di Santa Maria Novella, 18, 50123 Firenze', lat: 43.7746346, lng: 11.2493859, visited: false, category: 'sight', imageUrl: null },
-    { id: 'seed_06', name: 'Piazza del Duomo', description: '50122 Firenze', lat: 43.7734385, lng: 11.2565501, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_06', name: 'Cathedral of Santa Maria del Fiore', description: 'The Duomo - free inside, not the dome', lat: 43.7731015, lng: 11.2565742, visited: false, category: 'sight', imageUrl: null },
     { id: 'seed_07', name: 'Fontana del Porcellino', description: 'Piazza del Mercato Nuovo, 50123 Firenze', lat: 43.7698943, lng: 11.2542408, visited: false, category: 'sight', imageUrl: null },
     { id: 'seed_08', name: 'Piazza della Signoria', description: 'P.za della Signoria, 50122 Firenze', lat: 43.7696855, lng: 11.2556422, visited: false, category: 'sight', imageUrl: null },
     { id: 'seed_09', name: 'Museo Nazionale del Bargello', description: 'Via del Proconsolo, 4, 50122 Firenze', lat: 43.7703981, lng: 11.2580078, visited: false, category: 'sight', imageUrl: null },
-    { id: 'seed_10', name: 'Basilica of Santa Croce in Florence', description: 'Piazza di Santa Croce, 16, 50122 Firenze', lat: 43.7685683, lng: 11.2622677, visited: false, category: 'sight', imageUrl: null }
+    { id: 'seed_10', name: 'Basilica of Santa Croce in Florence', description: 'Basilica - free to go inside', lat: 43.7685683, lng: 11.2622677, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_11', name: 'Giunti Odeon - Libreria e Cinema', description: 'Movie theater - free theater', lat: 43.7709955, lng: 11.2525895, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_12', name: 'Oltrarno', description: 'Cute artisan streets', lat: 43.766103, lng: 11.2504739, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_13', name: 'Ponte Vecchio', description: 'Historic bridge', lat: 43.7680255, lng: 11.253158, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_14', name: 'Palazzo Vecchio', description: 'Museum / historic palace', lat: 43.7691435, lng: 11.2561399, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_15', name: 'Boboli Gardens', description: 'Historic gardens behind Pitti Palace', lat: 43.7632781, lng: 11.2498992, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_16', name: 'Museo Leonardo Da Vinci Firenze', description: 'Leonardo Da Vinci museum', lat: 43.7749655, lng: 11.2590086, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_17', name: 'Uffizi Galleries', description: 'World-renowned art museum', lat: 43.7683129, lng: 11.2558009, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_18', name: 'Terrazza San Miniato', description: 'Sunset viewpoint', lat: 43.7628279, lng: 11.2649932, visited: false, category: 'sight', imageUrl: null },
+
+    // === Florence - Food ===
+    { id: 'seed_19', name: 'Sapori & Dintorni Conad', description: 'Supermarket / grocery', lat: 43.7672117, lng: 11.253012, visited: false, category: 'food', imageUrl: null },
+    { id: 'seed_20', name: "Pino's Sandwiches - Salumeria Verdi", description: 'Sandwich shop, lunch', lat: 43.7704543, lng: 11.2618188, visited: false, category: 'food', imageUrl: null },
+    { id: 'seed_21', name: 'Mercato Centrale', description: 'Food market', lat: 43.7765847, lng: 11.2532087, visited: false, category: 'food', imageUrl: null },
+    { id: 'seed_22', name: 'Mercato di Sant\'Ambrogio', description: 'Local indoor fresh food market', lat: 43.7704822, lng: 11.2667825, visited: false, category: 'food', imageUrl: null },
+    { id: 'seed_23', name: "All'Antico Vinaio", description: 'Famous sandwich shop', lat: 43.7684668, lng: 11.2574228, visited: false, category: 'food', imageUrl: null },
+    { id: 'seed_24', name: 'Pastasciutta', description: 'Italian restaurant', lat: 43.76813, lng: 11.2582023, visited: false, category: 'food', imageUrl: null },
+    { id: 'seed_25', name: 'Pegna dal 1860', description: 'Gourmet grocery store', lat: 43.7721126, lng: 11.256874, visited: false, category: 'food', imageUrl: null },
+
+    // === Florence - Shopping ===
+    { id: 'seed_26', name: 'Massimo Leather', description: 'Leather goods store', lat: 43.7740984, lng: 11.2548572, visited: false, category: 'shopping', imageUrl: null },
+    { id: 'seed_27', name: 'Scuola del Cuoio', description: 'Leather school and shop', lat: 43.7676053, lng: 11.2630697, visited: false, category: 'shopping', imageUrl: null },
+    { id: 'seed_28', name: 'Il Bisonte Florence', description: 'Leather goods store', lat: 43.7706732, lng: 11.2498607, visited: false, category: 'shopping', imageUrl: null },
+    { id: 'seed_29', name: 'Manufactus Made in Italy', description: 'Artisan leather handicrafts', lat: 43.7720861, lng: 11.2498358, visited: false, category: 'shopping', imageUrl: null },
+    { id: 'seed_30', name: 'Emporio Centrale', description: 'Souvenirs', lat: 43.7715393, lng: 11.2553313, visited: false, category: 'shopping', imageUrl: null },
+    { id: 'seed_31', name: 'Il Torchio di Erin Ciulla', description: 'Bookbinder - journals', lat: 43.7661687, lng: 11.2556519, visited: false, category: 'shopping', imageUrl: null },
+    { id: 'seed_32', name: 'The Bussetto Florence', description: 'Artisan shop', lat: 43.7702686, lng: 11.2539922, visited: false, category: 'shopping', imageUrl: null },
+    { id: 'seed_33', name: 'Alberto Cozzi Rilegatore Firenze', description: 'Stationery store / bookbinder', lat: 43.7706879, lng: 11.2497245, visited: false, category: 'shopping', imageUrl: null },
+
+    // === Tuscany ===
+    { id: 'seed_34', name: 'Montefioralle', description: 'Village near Greve in Chianti', lat: 43.5807486, lng: 11.3031726, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_35', name: 'Lucca', description: 'Historic walled city', lat: 44.0177639, lng: 10.45443, visited: false, category: 'sight', imageUrl: null },
+
+    // === Bologna ===
+    { id: 'seed_36', name: 'Mercato Albani', description: 'Food hall - Bolognina', lat: 44.510293, lng: 11.3440196, visited: false, category: 'food', imageUrl: null },
+    { id: 'seed_37', name: 'Rocchetta Mattei', description: 'Castle with black and white stripes', lat: 44.2236107, lng: 11.0595976, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_38', name: 'Dozza', description: 'Hilltop city covered in murals', lat: 44.3593911, lng: 11.6288788, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_39', name: 'Sfoglia Rina', description: 'Fresh pasta restaurant', lat: 44.493182, lng: 11.3463396, visited: false, category: 'food', imageUrl: null },
+    { id: 'seed_40', name: 'Santuario Madonna di San Luca', description: 'Hilltop basilica / sanctuary', lat: 44.479093, lng: 11.2981656, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_41', name: 'Mercato delle Erbe', description: 'Food market', lat: 44.4960716, lng: 11.3382767, visited: false, category: 'food', imageUrl: null },
+    { id: 'seed_42', name: 'Quadrilatero', description: 'Historic district with food shops', lat: 44.4931597, lng: 11.3450991, visited: false, category: 'food', imageUrl: null },
+    { id: 'seed_43', name: 'Mercato di Mezzo', description: 'Food market / food hall', lat: 44.4933868, lng: 11.3448488, visited: false, category: 'food', imageUrl: null },
+    { id: 'seed_44', name: 'Portici di Bologna', description: 'UNESCO World Heritage porticoes', lat: 44.4913732, lng: 11.3454499, visited: false, category: 'sight', imageUrl: null },
+
+    // === Emilia-Romagna (north) ===
+    { id: 'seed_45', name: 'Museum Ferrari Maranello', description: 'Ferrari automobile museum', lat: 44.5301089, lng: 10.8610977, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_46', name: 'Lamborghini Automobile Museum', description: 'Lamborghini museum', lat: 44.6591378, lng: 11.1258279, visited: false, category: 'sight', imageUrl: null },
+    { id: 'seed_47', name: 'Modena', description: 'City famous for balsamic vinegar', lat: 44.5384728, lng: 10.9359609, visited: false, category: 'food', imageUrl: null },
+    { id: 'seed_48', name: 'Caseificio Bio Reggiani', description: 'Cheese shop', lat: 44.6994283, lng: 10.6284516, visited: false, category: 'food', imageUrl: null }
   ];
 
   // --- State ---
@@ -55,6 +104,14 @@
         const saved = { ...defaultState(), ...JSON.parse(raw) };
         if (!saved.pois || saved.pois.length === 0) {
           saved.pois = SEED_POIS.map(p => ({ ...p }));
+        } else {
+          // Merge in any new seed POIs that aren't already saved
+          const existingIds = new Set(saved.pois.map(p => p.id));
+          SEED_POIS.forEach(seed => {
+            if (!existingIds.has(seed.id)) {
+              saved.pois.push({ ...seed });
+            }
+          });
         }
         // Ensure new fields exist on older saved POIs
         saved.pois = saved.pois.map(p => ({
