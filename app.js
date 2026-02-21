@@ -12,6 +12,20 @@
   let markers = [];
   let baseMarker = null;
 
+  // --- Seed Data (parsed from Google Maps directions URL) ---
+  const SEED_POIS = [
+    { id: 'seed_01', name: "Galleria dell'Accademia di Firenze", description: 'Via Ricasoli, 58/60, 50129 Firenze', lat: 43.7768145, lng: 11.2586424 },
+    { id: 'seed_02', name: "Cenacolo di Sant'Apollonia", description: 'Via Ventisette Aprile, 1, 50129 Firenze', lat: 43.7787202, lng: 11.2565943 },
+    { id: 'seed_03', name: 'Medici Riccardi Palace', description: 'Via Camillo Cavour, 3, 50129 Firenze', lat: 43.7751689, lng: 11.2558581 },
+    { id: 'seed_04', name: 'Cappelle Medicee', description: 'Piazza di Madonna degli Aldobrandini, 6, 50123 Firenze', lat: 43.7750913, lng: 11.2533903 },
+    { id: 'seed_05', name: 'Basilica of Santa Maria Novella', description: 'P.za di Santa Maria Novella, 18, 50123 Firenze', lat: 43.7746346, lng: 11.2493859 },
+    { id: 'seed_06', name: 'Piazza del Duomo', description: '50122 Firenze', lat: 43.7734385, lng: 11.2565501 },
+    { id: 'seed_07', name: 'Fontana del Porcellino', description: 'Piazza del Mercato Nuovo, 50123 Firenze', lat: 43.7698943, lng: 11.2542408 },
+    { id: 'seed_08', name: 'Piazza della Signoria', description: 'P.za della Signoria, 50122 Firenze', lat: 43.7696855, lng: 11.2556422 },
+    { id: 'seed_09', name: 'Museo Nazionale del Bargello', description: 'Via del Proconsolo, 4, 50122 Firenze', lat: 43.7703981, lng: 11.2580078 },
+    { id: 'seed_10', name: 'Basilica of Santa Croce in Florence', description: 'Piazza di Santa Croce, 16, 50122 Firenze', lat: 43.7685683, lng: 11.2622677 }
+  ];
+
   function defaultState() {
     return {
       baseLocation: null, // { lat, lng, label }
@@ -25,7 +39,10 @@
       const raw = localStorage.getItem(STATE_KEY);
       if (raw) return { ...defaultState(), ...JSON.parse(raw) };
     } catch (e) { /* ignore */ }
-    return defaultState();
+    // First launch: seed with Florence POIs
+    const initial = defaultState();
+    initial.pois = SEED_POIS.map(p => ({ ...p }));
+    return initial;
   }
 
   function saveState() {
