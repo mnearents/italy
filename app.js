@@ -37,7 +37,14 @@
   function loadState() {
     try {
       const raw = localStorage.getItem(STATE_KEY);
-      if (raw) return { ...defaultState(), ...JSON.parse(raw) };
+      if (raw) {
+        const saved = { ...defaultState(), ...JSON.parse(raw) };
+        // If saved state has no POIs, seed them in
+        if (!saved.pois || saved.pois.length === 0) {
+          saved.pois = SEED_POIS.map(p => ({ ...p }));
+        }
+        return saved;
+      }
     } catch (e) { /* ignore */ }
     // First launch: seed with Florence POIs
     const initial = defaultState();
