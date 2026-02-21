@@ -523,6 +523,13 @@
       });
     });
 
+    // Settings: reset data
+    document.getElementById('btn-reset-data').addEventListener('click', () => {
+      if (!confirm('This will delete all your POIs and base location. Are you sure?')) return;
+      localStorage.removeItem(STATE_KEY);
+      location.reload();
+    });
+
     // Add POI buttons
     document.getElementById('btn-add-poi').addEventListener('click', openAddPoi);
     document.getElementById('btn-add-poi-list').addEventListener('click', openAddPoi);
